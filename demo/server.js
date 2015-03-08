@@ -5,6 +5,9 @@ var fs = require('fs');
 var path = require('path');
 var browserify = require('browserify');
 var browser_unpack = require('browser-unpack');
+var browser_pack = require('browser-pack');
+var cjs2es6import = require('cjs2es6import');
+var Readable = require('stream').Readable;
 
 var gatherDeps = function(rows) {
   var allDeps = {};
@@ -33,8 +36,20 @@ b.bundle(function(err, bundleSource) {
   var rows = browser_unpack(bundleSource);
   var deps = gatherDeps(rows);
 
-  console.log('browserify:',rows);
   console.log('deps:',deps);
+  console.log('browserify:',rows);
+  rows.forEach(function(row) {
+    var newSource = cjs2es6import(row.source);
+
+    row.source = newSource;
+  });
+
+  var s = new Readable();
+  s.push(JSON.stringify(rows));
+  s.push(null);
+
+  var pack = browser_pack();
+  s.pipe(pack).pipe(process.stdout);
 });
 
 // most browsers require TLS for HTTP2, use example key from http2 module

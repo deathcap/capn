@@ -10,8 +10,10 @@
   "keywords": [],
   "dependencies": {
     "acorn": "^0.12.0",
+    "browser-pack": "^4.0.1",
     "browser-unpack": "^1.0.1",
     "browserify": "^9.0.3",
+    "cjs2es6import": "git://github.com/deathcap/cjs2es6import.git",
     "escodegen": "^1.6.1",
     "http2": "^3.2.0",
     "walkall": "0.0.3"
