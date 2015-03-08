@@ -3,6 +3,36 @@
 var http2 = require('http2');
 var fs = require('fs');
 var path = require('path');
+var browserify = require('browserify');
+var browser_unpack = require('browser-unpack');
+
+var gatherDeps = function(rows) {
+  var allDeps = new Map();
+
+  rows.forEach(function(row) {
+    var id = row.id;
+
+    Object.keys(row.deps).forEach(function(depName) {
+      var depId = row.deps[depName];
+
+      allDeps.set(depName, depId); // TODO: nest
+    });
+  });
+};
+
+var b = browserify({
+  entries: [__dirname + '/math.js'],
+  debug: true
+});
+
+b.bundle(function(err, bundleSource) {
+  if (err) throw err;
+
+  var rows = browser_unpack(bundleSource);
+  gatherDeps(rows);
+
+  console.log('browserify:',rows);
+});
 
 // most browsers require TLS for HTTP2, use example key from http2 module
 var options = {
