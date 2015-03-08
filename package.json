@@ -1,13 +1,18 @@
 {
   "name": "capn",
-  "description": "",
+  "description": "browserify development server using HTTP/2 and ES6 Modules",
   "version": "0.0.1",
   "main": "capn.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:deathcap/capn.git"
   },
-  "keywords": [],
+  "keywords": [
+    "browserify",
+    "http2",
+    "es6",
+    "es6modules"
+  ],
   "dependencies": {
     "es6-module-loader": "^0.15.0",
     "traceur": "0.0.86",
