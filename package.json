@@ -16,6 +16,7 @@
     "cjs2es6import": "git://github.com/deathcap/cjs2es6import.git",
     "escodegen": "^1.6.1",
     "http2": "^3.2.0",
+    "lodash.endswith": "^3.0.0",
     "walkall": "0.0.3"
   },
   "scripts": {

@@ -8,6 +8,7 @@ var browser_unpack = require('browser-unpack');
 var browser_pack = require('browser-pack');
 var cjs2es6import = require('cjs2es6import');
 var Readable = require('stream').Readable;
+var endsWith = require('lodash.endswith');
 
 var gatherDeps = function(rows) {
   var allDeps = {};
@@ -31,6 +32,7 @@ var b = browserify({
 });
 
 var sources = {};
+var sourceEntryId = null;
 
 b.bundle(function(err, bundleSource) {
   if (err) throw err;
@@ -46,6 +48,9 @@ b.bundle(function(err, bundleSource) {
     row.source = newSource;
 
     sources['/' + row.id] = newSource;
+    if (row.entry) {
+      sourceEntryId = row.id;
+    }
   });
 
   var s = new Readable();
@@ -92,6 +97,12 @@ var options = {
 };
 
 http2.createServer(options, function(request, response) {
+
+  if (request.url === '/index.js') {
+    // main entrypoint id
+    request.url = '/' + sourceEntryId; // TODO: redirect
+  }
+
   if (sources[request.url]) {
     response.setHeader('Content-Type', 'text/javascript');
     response.writeHead('200');
@@ -103,9 +114,20 @@ http2.createServer(options, function(request, response) {
     return;
   }
 
-  var filename = path.join(__dirname, request.url);
+  if (request.url === '/') {
+    response.setHeader('Content-Type', 'text/html');
+    response.writeHead('200');
+    fs.createReadStream(__dirname + '/index.html').pipe(response);
+    return;
+  }
+
+  var filename = path.join(__dirname, '/../', request.url);
+  console.log(filename);
 
   if (fs.existsSync(filename) && fs.statSync(filename).isFile()) {
+    if (endsWith(filename, '.js'))
+      response.setHeader('Content-Type', 'text/javascript');
+
     response.writeHead('200');
     fs.createReadStream(filename).pipe(response);
   } else {
