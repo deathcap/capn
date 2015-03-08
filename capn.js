@@ -51,6 +51,7 @@ b.bundle(function(err, bundleSource) {
 
   //console.log('deps:',deps);
   //console.log('browserify:',rows);
+  console.log('processed',rows.length,'rows, ',Object.keys(deps).length,'deps');
   rows.forEach(function(row) {
     var newSource = cjs2es6import(row.source, {encode:
       function(moduleName) {
