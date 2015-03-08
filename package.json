@@ -17,7 +17,7 @@
     "lodash.endswith": "^3.0.0"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js ./demo/demo.js"
   },
   "license": "MIT",
   "devDependencies": {

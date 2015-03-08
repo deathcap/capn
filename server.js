@@ -28,8 +28,14 @@ var gatherDeps = function(rows) {
   return allDeps;
 };
 
+var srcFn = process.argv[2];
+if (!srcFn) {
+  console.error('source module required'); // TODO: pass through all args to browserify/watchify like wzrd, beefy
+  process.exit(-1);
+}
+
 var b = browserify({
-  entries: [__dirname + '/demo/demo.js'],
+  entries: [srcFn],
   debug: true
 });
 
