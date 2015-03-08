@@ -7,7 +7,7 @@ var browserify = require('browserify');
 var browser_unpack = require('browser-unpack');
 
 var gatherDeps = function(rows) {
-  var allDeps = new Map();
+  var allDeps = {};
 
   rows.forEach(function(row) {
     var id = row.id;
@@ -15,9 +15,11 @@ var gatherDeps = function(rows) {
     Object.keys(row.deps).forEach(function(depName) {
       var depId = row.deps[depName];
 
-      allDeps.set(depName, depId); // TODO: nest
+      allDeps[id + '/' + depName] = depId;
     });
   });
+
+  return allDeps;
 };
 
 var b = browserify({
@@ -29,9 +31,10 @@ b.bundle(function(err, bundleSource) {
   if (err) throw err;
 
   var rows = browser_unpack(bundleSource);
-  gatherDeps(rows);
+  var deps = gatherDeps(rows);
 
   console.log('browserify:',rows);
+  console.log('deps:',deps);
 });
 
 // most browsers require TLS for HTTP2, use example key from http2 module
