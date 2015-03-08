@@ -30,6 +30,8 @@ var b = browserify({
   debug: true
 });
 
+var sources = {};
+
 b.bundle(function(err, bundleSource) {
   if (err) throw err;
 
@@ -42,6 +44,8 @@ b.bundle(function(err, bundleSource) {
     var newSource = cjs2es6import(row.source, {prefix: row.id + '/'});
 
     row.source = newSource;
+
+    sources['/' + row.id] = newSource;
   });
 
   var s = new Readable();
@@ -88,6 +92,17 @@ var options = {
 };
 
 http2.createServer(options, function(request, response) {
+  if (sources[request.url]) {
+    response.setHeader('Content-Type', 'text/javascript');
+    response.writeHead('200');
+
+    var s = new Readable();
+    s.push(sources[request.url]);
+    s.push(null);
+    s.pipe(response);
+    return;
+  }
+
   var filename = path.join(__dirname, request.url);
 
   if (fs.existsSync(filename) && fs.statSync(filename).isFile()) {
