@@ -11,7 +11,6 @@
   "dependencies": {
     "es6-module-loader": "^0.15.0",
     "traceur": "0.0.86",
-    "browser-pack": "^4.0.1",
     "browser-unpack": "^1.0.1",
     "browserify": "^9.0.3",
     "cjs2es6import": "git://github.com/deathcap/cjs2es6import.git",

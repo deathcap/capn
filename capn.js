@@ -5,10 +5,11 @@ var fs = require('fs');
 var path = require('path');
 var browserify = require('browserify');
 var browser_unpack = require('browser-unpack');
-var browser_pack = require('browser-pack');
 var cjs2es6import = require('cjs2es6import');
 var Readable = require('stream').Readable;
 var endsWith = require('lodash.endswith');
+
+var PORT = 9977;
 
 var allDeps = {};
 
@@ -48,8 +49,8 @@ b.bundle(function(err, bundleSource) {
   var rows = browser_unpack(bundleSource);
   var deps = gatherDeps(rows);
 
-  console.log('deps:',deps);
-  console.log('browserify:',rows);
+  //console.log('deps:',deps);
+  //console.log('browserify:',rows);
   rows.forEach(function(row) {
     var newSource = cjs2es6import(row.source, {encode:
       function(moduleName) {
@@ -60,20 +61,11 @@ b.bundle(function(err, bundleSource) {
 
     newSource = newSource.replace('module.exports = ', 'export default '); // TODO: refactor, cjs2es6export?
 
-    row.source = newSource;
-
     sources['/' + row.id] = newSource;
     if (row.entry) {
       sourceEntryId = row.id;
     }
   });
-
-  var s = new Readable();
-  s.push(JSON.stringify(rows));
-  s.push(null);
-
-  var pack = browser_pack();
-  s.pipe(pack).pipe(process.stdout);
 });
 
 // most browsers require TLS for HTTP2, use example key from http2 module
@@ -111,6 +103,7 @@ var options = {
 '-----END CERTIFICATE-----'
 };
 
+console.log('http://0.0.0.0:' + PORT);
 http2.createServer(options, function(request, response) {
 
   if (request.url === '/main.js') {
@@ -156,4 +149,4 @@ http2.createServer(options, function(request, response) {
     response.writeHead('404');
     response.end('Hello world');
   }
-}).listen(9977);
+}).listen(PORT);
