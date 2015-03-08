@@ -1,14 +1,16 @@
 {
-  "name": "cjs2es6modules",
+  "name": "capn",
   "description": "",
   "version": "0.0.1",
-  "main": "cjs2es6modules.js",
+  "main": "capn.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:deathcap/cjs2es6modules.git"
+    "url": "git@github.com:deathcap/capn.git"
   },
   "keywords": [],
   "dependencies": {
+    "es6-module-loader": "^0.15.0",
+    "traceur": "0.0.86",
     "browser-pack": "^4.0.1",
     "browser-unpack": "^1.0.1",
     "browserify": "^9.0.3",
@@ -17,11 +19,9 @@
     "lodash.endswith": "^3.0.0"
   },
   "scripts": {
-    "start": "node server.js ./demo/demo.js"
+    "start": "node capn.js ./demo/demo.js"
   },
   "license": "MIT",
   "devDependencies": {
-    "es6-module-loader": "^0.15.0",
-    "traceur": "0.0.86"
   }
 }

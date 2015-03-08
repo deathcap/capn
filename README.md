@@ -1,4 +1,4 @@
-# cjs2es6modules
+# capn
 
 ## License
 
