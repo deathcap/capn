@@ -39,7 +39,7 @@ b.bundle(function(err, bundleSource) {
   console.log('deps:',deps);
   console.log('browserify:',rows);
   rows.forEach(function(row) {
-    var newSource = cjs2es6import(row.source);
+    var newSource = cjs2es6import(row.source, {prefix: row.id + '/'});
 
     row.source = newSource;
   });
