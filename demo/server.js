@@ -10,16 +10,18 @@ var cjs2es6import = require('cjs2es6import');
 var Readable = require('stream').Readable;
 var endsWith = require('lodash.endswith');
 
-var gatherDeps = function(rows) {
-  var allDeps = {};
+var allDeps = {};
 
+var gatherDeps = function(rows) {
   rows.forEach(function(row) {
     var id = row.id;
 
     Object.keys(row.deps).forEach(function(depName) {
       var depId = row.deps[depName];
 
-      allDeps[id + '/' + depName] = depId;
+      depName = depName.replace(/\./, '_'); // encoded for es6 import below
+
+      allDeps['/' + id + '/' + depName + '.js'] = '/' + depId;
     });
   });
 
@@ -43,7 +45,14 @@ b.bundle(function(err, bundleSource) {
   console.log('deps:',deps);
   console.log('browserify:',rows);
   rows.forEach(function(row) {
-    var newSource = cjs2es6import(row.source, {prefix: row.id + '/'});
+    var newSource = cjs2es6import(row.source, {encode:
+      function(moduleName) {
+        moduleName = moduleName.replace(/\./, '_'); // '.' not allowed in module names but can come from require('./foo')
+        return row.id + '/' + moduleName;
+      }
+    });
+
+    newSource = newSource.replace('module.exports = ', 'export default '); // TODO: refactor, cjs2es6export?
 
     row.source = newSource;
 
@@ -98,12 +107,18 @@ var options = {
 
 http2.createServer(options, function(request, response) {
 
-  if (request.url === '/index.js') {
+  if (request.url === '/main.js') {
     // main entrypoint id
     request.url = '/' + sourceEntryId; // TODO: redirect
   }
 
+  if (allDeps[request.url]) {
+    // /<id>/<depname> dependency -> lookup id
+    request.url = allDeps[request.url];
+  }
+
   if (sources[request.url]) {
+    // /<id> bundle part javascript
     response.setHeader('Content-Type', 'text/javascript');
     response.writeHead('200');
 
