@@ -1,6 +1,8 @@
 'use strict';
 
 var http2 = require('http2');
+var fs = require('fs');
+var path = require('path');
 
 // most browsers require TLS for HTTP2, use example key from http2 module
 var options = {
@@ -38,7 +40,15 @@ var options = {
 };
 
 http2.createServer(options, function(request, response) {
-  response.end('Hello world');
+  var filename = path.join(__dirname, request.url);
+
+  if (fs.existsSync(filename) && fs.statSync(filename).isFile()) {
+    response.writeHead('200');
+    fs.createReadStream(filename).pipe(response);
+  } else {
+    response.writeHead('404');
+    response.end('Hello world');
+  }
 }).listen(9977);
 
 /* TODO
