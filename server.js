@@ -29,7 +29,7 @@ var gatherDeps = function(rows) {
 };
 
 var b = browserify({
-  entries: [__dirname + '/math.js'],
+  entries: [__dirname + '/demo/demo.js'],
   debug: true
 });
 
@@ -132,13 +132,14 @@ http2.createServer(options, function(request, response) {
   if (request.url === '/') {
     response.setHeader('Content-Type', 'text/html');
     response.writeHead('200');
-    fs.createReadStream(__dirname + '/index.html').pipe(response);
+    fs.createReadStream(__dirname + '/demo/index.html').pipe(response);
     return;
   }
 
-  var filename = path.join(__dirname, '/../', request.url);
+  var filename = path.join(__dirname, request.url);
   console.log(filename);
 
+  // traceur and es6-module-loader TODO: only allow
   if (fs.existsSync(filename) && fs.statSync(filename).isFile()) {
     if (endsWith(filename, '.js'))
       response.setHeader('Content-Type', 'text/javascript');
@@ -150,11 +151,3 @@ http2.createServer(options, function(request, response) {
     response.end('Hello world');
   }
 }).listen(9977);
-
-/* TODO
-
-var connect = require('connect');
-var serveStatic = require('serve-static');
-
-connect().use(serveStatic(__dirname + '/..')).listen(9977);
-*/
