@@ -6,6 +6,7 @@ var path = require('path');
 var browserify = require('browserify');
 var browser_unpack = require('browser-unpack');
 var cjs2es6import = require('cjs2es6import');
+var cjs2es6export = require('cjs2es6export');
 var Readable = require('stream').Readable;
 var endsWith = require('lodash.endswith');
 
@@ -53,14 +54,16 @@ b.bundle(function(err, bundleSource) {
   //console.log('browserify:',rows);
   console.log('processed',rows.length,'rows, ',Object.keys(deps).length,'deps');
   rows.forEach(function(row) {
-    var newSource = cjs2es6import(row.source, {encode:
-      function(moduleName) {
+    // module.exports = -> export
+    var ast = cjs2es6export(row.source, {returnAst: true});
+
+    // require() -> import
+    var newSource = cjs2es6import(null, {ast: ast,
+      encode: function(moduleName) {
         moduleName = moduleName.replace(/\./, '_'); // '.' not allowed in module names but can come from require('./foo')
         return row.id + '/' + moduleName;
       }
     });
-
-    newSource = newSource.replace('module.exports = ', 'export default '); // TODO: refactor, cjs2es6export?
 
     sources['/' + row.id] = newSource;
     if (row.entry) {
