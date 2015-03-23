@@ -54,16 +54,16 @@ b.bundle(function(err, bundleSource) {
   //console.log('browserify:',rows);
   console.log('processed',rows.length,'rows, ',Object.keys(deps).length,'deps');
   rows.forEach(function(row) {
+    // module.exports = -> export
+    var newSource = cjs2es6export(row.source);
+
     // require() -> import
-    var newSource = cjs2es6import(row.source, {encode: function(moduleName) {
+    newSource = cjs2es6import(newSource, {encode: function(moduleName) {
         moduleName = moduleName.replace(/\./, '_'); // '.' not allowed in module names but can come from require('./foo')
+        // TODO: fix if replace exports after imports, then 'import sub' changes to 'import { sub }', loses defaultness
         return row.id + '/' + moduleName;
       }
     });
-
-    // module.exports = -> export
-    //var ast = cjs2es6export(newSource, {returnAst: true});
-    var newSource = newSource.replace('module.exports = ', 'export default '); // TODO: replace with cjs2es6export, after fixing ES6 acorn walk
 
     sources['/' + row.id] = newSource;
     if (row.entry) {
